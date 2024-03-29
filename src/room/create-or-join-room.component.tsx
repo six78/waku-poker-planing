@@ -4,20 +4,14 @@ import { generateHash } from "../shared/random-hash";
 import { createEmptyRoom } from "../dealer/dealer-resolver";
 import { RoomsList } from "./rooms-list.component";
 import { useNavigateToRoom } from "../app/app.router";
+import { Moh } from "../app/app.crypto";
 
 export function CreateOrJoinRoom() {
   const input = useRef<InputRef>(null);
   const navigateToRoom = useNavigateToRoom();
 
   function createNewGame() {
-    const roomId = generateHash();
-    /**
-     * TODO:
-     * this is an ugly way to join the room as a host without passing the flag via url
-     * try to find better solution
-     */
-    createEmptyRoom(roomId);
-    navigateToRoom(roomId);
+    return new Moh().generate();
   }
 
   function join() {

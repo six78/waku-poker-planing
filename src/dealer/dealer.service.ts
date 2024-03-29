@@ -41,6 +41,37 @@ export class DealerService {
       }
     })
 
+    // const playersOnlineStream$ = new Subject<IPlayer>();
+
+
+    // playersOnlineStream$.pipe(
+    //   // Для каждого сообщения от игрока
+    //   mergeMap(player => {
+    //     const players = this.state.players;
+
+    //     if (!players.some(x => x.id === player.id)) {
+    //       this.state.players.push(player);
+    //       this.sendStateToNetwork();
+    //     }
+    //     // Создаем таймер на 15 секунд для текущего игрока
+    //     return timer(15000).pipe(
+    //       map(() => player.id),
+    //       // Если от игрока приходит новое сообщение, отменяем текущий таймер
+    //       takeUntil(playersOnlineStream$.pipe(
+    //         filter(x => x.id === player.id)
+    //       )),
+    //     );
+    //   }),
+    // ).subscribe(playerId => {
+
+    //   const players = this.state.players;
+    //   if (players.some(x => x.id === playerId)) {
+    //     console.log('PLAYER OFFLINE', playerId);
+    //     this.state.players = this.state.players.filter(x => x.id !== playerId);
+    //     this.sendStateToNetwork();
+    //   }
+    // });
+
     this.sendStateToNetwork();
     this.syncIntervalId = this.enableIntervalSync();
   }
