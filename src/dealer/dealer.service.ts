@@ -3,7 +3,6 @@ import { WakuNodeService } from '../waku/waku-node.service';
 import { IPlayerOnlineMessage, IPlayerVoteMessage } from '../app/app-waku-message.model';
 import { IAppState } from '../app/app.state';
 import { Estimation } from '../voting/voting.model';
-import { toArray, toDictionary } from '../shared/object';
 import { RoomId } from '../room/room.model';
 import { getRoomState, saveRoomState } from './dealer-resolver';
 
@@ -108,7 +107,7 @@ export class DealerService {
 
     if (activeIssue) {
       activeIssue.result = null;
-      activeIssue.votes = [];
+      activeIssue.votes = {};
       this.sendStateToNetwork();
     }
 
@@ -128,16 +127,19 @@ export class DealerService {
   public sendStateToNetwork(): void {
     let state = this.state;
 
-    if (state.revealResults === false && state.activeIssue) {
+    const shouldHideResults = state.revealResults === false && state.activeIssue;
+
+    if (shouldHideResults) {
       state = JSON.parse(JSON.stringify(this.state));
+
       state.issues = state.issues.map(issue => {
         if (issue.id === state.activeIssue) {
-          issue.votes = issue.votes.map(vote => {
-            return {
-              ...vote,
+          for (const playerId in issue.votes) {
+            issue.votes[playerId] = {
+              ...issue.votes[playerId],
               estimation: null
             }
-          })
+          }
         }
 
         return issue;
@@ -177,19 +179,18 @@ export class DealerService {
   private onPlayerVoted(message: IPlayerVoteMessage): void {
     const activeIssue = this.state.issues.find(x => x.id === this.state.activeIssue);
 
-    if (!activeIssue || message.voteFor !== activeIssue.id) {
+    if (!activeIssue || message.issue !== activeIssue.id) {
       return;
     }
 
-    const votes = toDictionary(activeIssue.votes, 'voteBy');
+    const votes = activeIssue.votes;
 
     if (message.vote.estimation === null) {
-      delete votes[message.vote.voteBy];
+      delete votes[message.playerId];
     } else {
-      votes[message.vote.voteBy] = message.vote;
+      votes[message.playerId] = message.vote;
     }
 
-    activeIssue.votes = toArray(votes);
     this.sendStateToNetwork();
   }
 

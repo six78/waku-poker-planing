@@ -1,6 +1,5 @@
 import { useRef } from "react";
 import { Button, Card, Col, Divider, Input, InputRef, Row, Space } from "antd";
-import { generateHash } from "../shared/random-hash";
 import { createEmptyRoom } from "../dealer/dealer-resolver";
 import { RoomsList } from "./rooms-list.component";
 import { useNavigateToRoom } from "../app/app.router";
@@ -11,7 +10,9 @@ export function CreateOrJoinRoom() {
   const navigateToRoom = useNavigateToRoom();
 
   function createNewGame() {
-    return new Moh().generate();
+    const roomId = new Moh().generate();
+    createEmptyRoom(roomId);
+    navigateToRoom(roomId);
   }
 
   function join() {

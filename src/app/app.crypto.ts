@@ -1,13 +1,13 @@
 import { appConfig } from './app.config';
 import base58 from 'bs58';
 import { keccak256 } from 'js-sha3';
-import { hexStrToUint8Array } from '../shared/string';
+import { randomBytes } from '@waku/message-encryption/crypto';
 
 
 // TODO: rename to Room 
 export class Moh {
   public generate() {
-    const symmetricKey = hexStrToUint8Array(test.symmetricKey) // this.generateSymmetricKey();
+    const symmetricKey = this.generateSymmetricKey();
     const symmetricKeyWithAppVersion = this.getSymmetricKeyWithAppVersion(symmetricKey)
     const roomId = this.toBase58(symmetricKeyWithAppVersion);
 
@@ -32,6 +32,10 @@ export class Moh {
     result.set([appConfig.version]);
     result.set(symmetricKey, 1);
     return result;
+  }
+
+  private generateSymmetricKey(): Uint8Array {
+    return randomBytes(16);
   }
 }
 

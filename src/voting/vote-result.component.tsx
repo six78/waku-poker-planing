@@ -1,12 +1,11 @@
 import { Button, Modal, Space } from "antd";
-import { IPlayer, PlayerName } from "../player/player.model";
+import { IPlayer, PlayerId, PlayerName } from "../player/player.model";
 import { PlayerTag } from "../player/players-list.component";
 import { VoteOption } from "./vote-option.component";
 import { Estimation, IVote } from "./voting.model";
 import { useState } from "react";
 import { useDealer } from "../dealer/dealer.context";
 import { useActiveIssue, usePlayersList } from "../app/app.state";
-import { toDictionary } from "../shared/object";
 
 interface IEstimation {
   label: string;
@@ -14,12 +13,14 @@ interface IEstimation {
   value: Estimation | null;
 }
 
-function calculateResults(players: IPlayer[], votes: IVote[]): IEstimation[] {
+function calculateResults(
+  players: IPlayer[],
+  votes: Record<PlayerId, IVote>
+): IEstimation[] {
   const map: { [key: string]: IEstimation } = {};
-  const votesHashByPlayer = toDictionary(votes, "voteBy");
 
   players.map((player) => {
-    const esimation = votesHashByPlayer[player.id];
+    const esimation = votes[player.id];
     const estimationLabel = esimation?.estimation || "No votes";
 
     if (!map[estimationLabel]) {

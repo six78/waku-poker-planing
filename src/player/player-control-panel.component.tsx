@@ -6,14 +6,13 @@ import { VoteOption } from "../voting/vote-option.component";
 import { Estimation, IVote } from "../voting/voting.model";
 import { PlayersList } from "./players-list.component";
 import { IIssue } from "../issue/issue.model";
-import { toDictionary } from "../shared/object";
 
 export function PlayerControlPanel(props: { issue: IIssue }) {
   const { issue } = props;
   const player = usePlayer()!;
 
   const activeVoteOnNetwork = useMemo(
-    () => toDictionary(issue.votes, "voteBy")[player.playerId] || null,
+    () => issue.votes[player.playerId] || null,
     [issue, player]
   );
 

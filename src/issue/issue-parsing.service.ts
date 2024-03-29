@@ -19,7 +19,7 @@ export function createIssueFromString(data: string): IIssue {
     id: generateHash(),
     titleOrUrl: data,
     result: null,
-    votes: []
+    votes: {}
   };
 
   return issue;

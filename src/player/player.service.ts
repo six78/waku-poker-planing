@@ -24,10 +24,10 @@ export class PlayerService {
 
     const message: IPlayerVoteMessage = {
       type: '__player_vote',
-      voteFor,
+      issue: voteFor,
+      playerId: this.playerId,
       vote: {
         timestamp,
-        voteBy: this.playerId,
         estimation: voteResult,
       }
     };

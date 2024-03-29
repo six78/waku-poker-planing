@@ -1,3 +1,4 @@
+import { PlayerId } from '../player/player.model';
 import { Estimation, IVote } from '../voting/voting.model';
 
 export type IssueId = string;
@@ -15,6 +16,6 @@ export interface IRemoteIssue {
 export interface IIssue {
   id: IssueId;
   titleOrUrl: string;
-  votes: IVote[]
+  votes: Record<PlayerId, IVote>;
   result: Estimation | null
 }
