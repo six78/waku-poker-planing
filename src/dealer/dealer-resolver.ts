@@ -10,7 +10,7 @@ export function createDefaultAppState(): IAppState {
     players: [],
     issues: [],
     activeIssue: null,
-    revealResults: false
+    votesRevealed: false
   }
 }
 

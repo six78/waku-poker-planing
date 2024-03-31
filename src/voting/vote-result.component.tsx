@@ -27,7 +27,7 @@ function calculateResults(
       map[estimationLabel] = {
         label: estimationLabel,
         votedBy: [],
-        value: esimation.estimation,
+        value: esimation?.estimation,
       };
     }
 

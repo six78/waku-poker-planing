@@ -19,7 +19,7 @@ export class PlayerService {
     this.sendPlayerIsOnlineMessage();
   }
 
-  public vote(voteFor: string, voteResult: Estimation | null): Omit<IVote, "voteBy"> {
+  public vote(voteFor: string, voteResult: Estimation | null): IVote {
     const timestamp = getCurrentTimestamp();
 
     const message: IPlayerVoteMessage = {

@@ -76,6 +76,26 @@ export async function createWakuNodeService(contentTopic: string): Promise<WakuN
     Protocols.Filter,
   ]);
 
+  const sidr = [
+    'connection:close',
+    'connection:open',
+    'connection:prune',
+    'peer:connect',
+    'peer:disconnect',
+    'peer:discovery',
+    'peer:identify',
+    'peer:update',
+    'self:peer:update',
+    'start',
+    'stop',
+    'transport:close',
+    'transport:listening',
+  ]
+
+  sidr.forEach(event => {
+    node.filter.addLibp2pEventListener(event, e => console.warn(event, e));
+  })
+
   clearTimeout(timeout);
   return new WakuNodeService(node, contentTopic);
 }

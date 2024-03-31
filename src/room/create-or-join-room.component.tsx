@@ -3,22 +3,22 @@ import { Button, Card, Col, Divider, Input, InputRef, Row, Space } from "antd";
 import { createEmptyRoom } from "../dealer/dealer-resolver";
 import { RoomsList } from "./rooms-list.component";
 import { useNavigateToRoom } from "../app/app.router";
-import { Moh } from "../app/app.crypto";
+import { RoomConfig } from "./room";
 
 export function CreateOrJoinRoom() {
   const input = useRef<InputRef>(null);
   const navigateToRoom = useNavigateToRoom();
 
   function createNewGame() {
-    const roomId = new Moh().generate();
-    createEmptyRoom(roomId);
-    navigateToRoom(roomId);
+    const room = RoomConfig.create();
+    createEmptyRoom(room.id);
+    navigateToRoom(room.id);
   }
 
   function join() {
     const roomId = input.current?.input?.value.trim();
     if (roomId) {
-      navigateToRoom(`/room/${roomId}`);
+      navigateToRoom(roomId);
     }
   }
 

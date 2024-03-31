@@ -16,10 +16,9 @@ export function PlayerControlPanel(props: { issue: IIssue }) {
     [issue, player]
   );
 
-  const [activeVoteOnDevice, setActiveVoteOnDevice] = useState<Omit<
-    IVote,
-    "voteBy"
-  > | null>(null);
+  const [activeVoteOnDevice, setActiveVoteOnDevice] = useState<IVote | null>(
+    null
+  );
 
   const [pendingEstimation, setPendingEstimation] = useState<Estimation | null>(
     null
@@ -28,6 +27,7 @@ export function PlayerControlPanel(props: { issue: IIssue }) {
   useEffect(() => {
     const isEstimationWasCleaned =
       activeVoteOnDevice?.estimation === null && activeVoteOnNetwork === null;
+
     const isEstimationWasApplied =
       activeVoteOnDevice?.timestamp === activeVoteOnNetwork?.timestamp;
 

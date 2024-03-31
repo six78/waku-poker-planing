@@ -9,9 +9,9 @@ import { PlayerContext } from "./player/player.context";
 import { DealerServiceContext } from "./dealer/dealer.context";
 import { DealerService } from "./dealer/dealer.service";
 import { Room } from "./room/room.component";
-import { createContentTopic } from "./app/app.const";
 import { isCurrentUserDealerForRoom } from "./dealer/dealer-resolver";
 import { useUpdateAppState } from "./app/app.state";
+import { RoomConfig } from "./room/room";
 
 export function App() {
   const { id: roomId } = useParams();
@@ -46,7 +46,8 @@ export function App() {
   );
 
   useEffect(() => {
-    createWakuNodeService(createContentTopic(roomId)).then((node) => {
+    const roomConfig = RoomConfig.create(roomId);
+    createWakuNodeService(roomConfig.contentTopic).then((node) => {
       if (!node) {
         return;
       }
