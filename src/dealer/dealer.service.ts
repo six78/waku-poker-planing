@@ -5,6 +5,7 @@ import { Estimation } from '../voting/voting.model';
 import { RoomId } from '../room/room.model';
 import { getRoomState, saveRoomState } from './dealer-resolver';
 import { IWakuService } from '../waku/waku.model';
+import { appConfig } from '../app/app.config';
 
 
 // TODO: why this decorator not working?
@@ -171,6 +172,10 @@ export class DealerService {
   }
 
   private enableIntervalSync(): void {
+    if (!appConfig.heartbeat.dealer) {
+      return;
+    }
+
     if (this.syncIntervalId) {
       clearInterval(this.syncIntervalId);
     }
