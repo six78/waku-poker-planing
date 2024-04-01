@@ -1,3 +1,4 @@
+import { RoomId } from './../room/room.model';
 import { LogLevel } from './../app/app.const';
 import { Decoder, Encoder, createDecoder, createEncoder } from '@waku/sdk';
 import { IMessage } from '../app/app-waku-message.model';
@@ -6,6 +7,8 @@ import { PUBSUB_TOPIC } from '../app/app.const';
 import { IWakuNode, IWakuService } from './waku.model';
 import { WakuRelayNode } from './protocols/waku-relay-node';
 import { WakuLightNode } from './protocols/waku-light-node';
+import { useEffect, useMemo, useState } from 'react';
+import { RoomConfig } from '../room/room';
 
 export const MESSAGE = {
   STATE: '__state',
@@ -18,6 +21,19 @@ const logLevel = new Map<LogLevel, string[]>();
 logLevel.set(LogLevel.None, []);
 logLevel.set(LogLevel.State, [MESSAGE.STATE]);
 logLevel.set(LogLevel.All, [MESSAGE.STATE, MESSAGE.PLAYER_ONLINE, MESSAGE.PLAYER_VOTED]);
+
+
+// TODO: implement this fn
+export function useWakuNodeService(roomId: RoomId): IWakuService | null {
+  const [node, setNode] = useState<IWakuService | null>(null);
+  const roomConfig = useMemo(() => RoomConfig.create(roomId), [roomId]);
+
+  useEffect(() => {
+    WakuNodeService.create(roomConfig.contentTopic).then(setNode);
+  }, [roomConfig]);
+
+  return node;
+}
 
 export class WakuNodeService implements IWakuService {
   private readonly encoder: Encoder;
