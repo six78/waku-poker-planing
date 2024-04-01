@@ -1,8 +1,9 @@
 import { IPlayerVoteMessage } from '../app/app-waku-message.model';
+import { appConfig } from '../app/app.config';
 import { IAppState } from '../app/app.state';
 import { getCurrentTimestamp } from '../shared/timestamp';
 import { Estimation, IVote } from '../voting/voting.model';
-import { WakuNodeService } from '../waku/waku-node.service';
+import { IWakuService } from '../waku/waku.model';
 import { IPlayer, PlayerId, PlayerName } from './player.model';
 
 
@@ -12,11 +13,12 @@ export class PlayerService {
 
   private heartbeatIntervalId: NodeJS.Timeout | undefined;
 
-  constructor(private readonly node: WakuNodeService, player: IPlayer) {
+  constructor(private readonly node: IWakuService, player: IPlayer) {
     this.playerId = player.id;
     this.playerName = player.name;
 
     this.sendPlayerIsOnlineMessage();
+    this.enableHeartBeat();
   }
 
   public vote(voteFor: string, voteResult: Estimation | null): IVote {
@@ -51,14 +53,16 @@ export class PlayerService {
     return this;
   }
 
-  public enableHeartBeat(): this {
+  private enableHeartBeat(): void {
+    if (!appConfig.heartbeat.player) {
+      return;
+    }
+
     if (!this.heartbeatIntervalId) {
       this.heartbeatIntervalId = setInterval(() => {
         this.sendPlayerIsOnlineMessage()
       }, 10 * 1000);
     }
-
-    return this;
   }
 
   public beforeDestroy(): void {

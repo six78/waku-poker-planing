@@ -6,7 +6,7 @@ export interface IAppState {
   players: IPlayer[];
   issues: IIssue[];
   activeIssue: IssueId | null;
-  revealResults: boolean;
+  votesRevealed: boolean;
 }
 
 

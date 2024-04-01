@@ -1,10 +1,10 @@
 import { IIssue, IssueId } from '../issue/issue.model';
-import { WakuNodeService } from '../waku/waku-node.service';
 import { IPlayerOnlineMessage, IPlayerVoteMessage } from '../app/app-waku-message.model';
 import { IAppState } from '../app/app.state';
 import { Estimation } from '../voting/voting.model';
 import { RoomId } from '../room/room.model';
 import { getRoomState, saveRoomState } from './dealer-resolver';
+import { IWakuService } from '../waku/waku.model';
 
 
 // TODO: why this decorator not working?
@@ -24,9 +24,9 @@ import { getRoomState, saveRoomState } from './dealer-resolver';
 
 export class DealerService {
   private state: IAppState;
-  private syncIntervalId: NodeJS.Timeout;
+  private syncIntervalId: NodeJS.Timeout | undefined;
 
-  constructor(private readonly node: WakuNodeService, private readonly roomId: RoomId) {
+  constructor(private readonly node: IWakuService, private readonly roomId: RoomId) {
     this.state = getRoomState(roomId);
 
     this.node.subscribe(message => {
@@ -72,11 +72,17 @@ export class DealerService {
     // });
 
     this.sendStateToNetwork();
-    this.syncIntervalId = this.enableIntervalSync();
+    this.enableIntervalSync();
   }
 
   public startVoting(issue: IIssue): void {
     this.state.activeIssue = issue.id;
+    const activeIssue = this.findActiveIssue();
+    if (activeIssue) {
+      activeIssue.result = null;
+      activeIssue.votes = {};
+    }
+
     this.sendStateToNetwork();
   }
 
@@ -85,33 +91,33 @@ export class DealerService {
       return;
     }
 
-    this.state.revealResults = true;
+    this.state.votesRevealed = true;
     this.sendStateToNetwork();
 
   }
 
   public submitResult(result: Estimation): void {
-    const activeIssue = this.state.issues.find(x => x.id === this.state.activeIssue);
+    const activeIssue = this.findActiveIssue();
 
     if (activeIssue) {
       activeIssue.result = result;
     }
 
-    this.state.revealResults = false;
+    this.state.votesRevealed = false;
     this.state.activeIssue = null;
     this.sendStateToNetwork();
   }
 
   public revote(): void {
-    const activeIssue = this.state.issues.find(x => x.id === this.state.activeIssue);
+    const activeIssue = this.findActiveIssue();
 
     if (activeIssue) {
       activeIssue.result = null;
       activeIssue.votes = {};
-      this.sendStateToNetwork();
     }
 
-    this.state.revealResults = false;
+    this.state.votesRevealed = false;
+    this.sendStateToNetwork();
   }
 
   public addIssue(issue: IIssue): void {
@@ -127,7 +133,7 @@ export class DealerService {
   public sendStateToNetwork(): void {
     let state = this.state;
 
-    const shouldHideResults = state.revealResults === false && state.activeIssue;
+    const shouldHideResults = state.votesRevealed === false && state.activeIssue;
 
     if (shouldHideResults) {
       state = JSON.parse(JSON.stringify(this.state));
@@ -159,8 +165,17 @@ export class DealerService {
     this.node.stop();
   }
 
-  private enableIntervalSync(): NodeJS.Timeout {
-    return setInterval(() => {
+  private findActiveIssue(): IIssue | undefined {
+    return this.state.issues.find(x => x.id === this.state.activeIssue);
+
+  }
+
+  private enableIntervalSync(): void {
+    if (this.syncIntervalId) {
+      clearInterval(this.syncIntervalId);
+    }
+
+    this.syncIntervalId = setInterval(() => {
       this.sendStateToNetwork();
     }, 10000);
   }
@@ -177,7 +192,7 @@ export class DealerService {
   }
 
   private onPlayerVoted(message: IPlayerVoteMessage): void {
-    const activeIssue = this.state.issues.find(x => x.id === this.state.activeIssue);
+    const activeIssue = this.findActiveIssue();
 
     if (!activeIssue || message.issue !== activeIssue.id) {
       return;

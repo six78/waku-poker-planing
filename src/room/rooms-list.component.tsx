@@ -1,9 +1,10 @@
 import { Table, TableProps } from "antd";
 import { getDealerRooms } from "../dealer/dealer-resolver";
-import { RoomId } from "./room.model";
+import { IRoomState, RoomId } from "./room.model";
 import { Button } from "antd";
 import { useNavigateToRoom } from "../app/app.router";
 import { appConfig } from "../app/app.config";
+import { Sort, getSortFn } from "../shared/sorting";
 
 interface IData {
   key: string;
@@ -12,7 +13,7 @@ interface IData {
   issues: string;
 }
 
-function getLastFiveRoomsData(): IData[] {
+function getRoomsData(): IData[] {
   const rooms = getDealerRooms();
 
   return Object.keys(rooms)
@@ -28,10 +29,7 @@ function getLastFiveRoomsData(): IData[] {
         }`,
       };
     })
-    .sort((x, y) => {
-      return x.updatedAt - y.updatedAt;
-    })
-    .filter((_, i) => i <= appConfig.maxRoomsToDisplay - 1)
+    .sort(getSortFn<{ updatedAt: number }>("updatedAt", Sort.Desc))
     .map((data) => {
       return {
         ...data,
@@ -42,7 +40,7 @@ function getLastFiveRoomsData(): IData[] {
 
 export function RoomsList() {
   const navigateToRoom = useNavigateToRoom();
-  const rooms = getLastFiveRoomsData();
+  const rooms = getRoomsData();
 
   if (!rooms.length) {
     return null;

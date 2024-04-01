@@ -3,7 +3,7 @@ import { Spin } from "antd";
 
 import { useParams } from "react-router-dom";
 import { getUserDataFromLocalStorage } from "./user/current-user";
-import { createWakuNodeService } from "./waku/waku-node.service";
+import { WakuNodeService } from "./waku/waku-node.service";
 import { PlayerService } from "./player/player.service";
 import { PlayerContext } from "./player/player.context";
 import { DealerServiceContext } from "./dealer/dealer.context";
@@ -47,7 +47,7 @@ export function App() {
 
   useEffect(() => {
     const roomConfig = RoomConfig.create(roomId);
-    createWakuNodeService(roomConfig.contentTopic).then((node) => {
+    WakuNodeService.create(roomConfig.contentTopic).then((node) => {
       if (!node) {
         return;
       }
@@ -57,7 +57,7 @@ export function App() {
         : null;
       playerServiceRef.current = new PlayerService(node, user);
 
-      playerServiceRef.current.onStateChanged(updateAppState).enableHeartBeat();
+      playerServiceRef.current.onStateChanged(updateAppState);
 
       setDealerService(dealerServiceRef.current);
       setPlayerService(playerServiceRef.current);

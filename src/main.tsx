@@ -7,6 +7,7 @@ import { UserAuth } from "./user/user-auth.component";
 import { CreateOrJoinRoom } from "./room/create-or-join-room.component";
 import { App } from "./App";
 import { RecoilRoot } from "recoil";
+import { cleanUpDealerRoomHistory } from "./dealer/dealer-resolver";
 
 const router = createHashRouter([
   {
@@ -34,6 +35,8 @@ const router = createHashRouter([
     element: <div>TODO: 404</div>,
   },
 ]);
+
+cleanUpDealerRoomHistory();
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <RecoilRoot>

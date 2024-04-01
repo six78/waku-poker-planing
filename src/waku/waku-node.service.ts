@@ -1,9 +1,11 @@
 import { LogLevel } from './../app/app.const';
-import { Callback, Decoder, Encoder, IDecodedMessage, IDecoder, IEncoder, IFilter, ILightPush, IMessage as IWakuMessage, Protocols, SendResult, Unsubscribe, createDecoder, createEncoder, createLightNode, waitForRemotePeer } from '@waku/sdk';
-import { wakuDnsDiscovery } from "@waku/dns-discovery";
+import { Decoder, Encoder, createDecoder, createEncoder } from '@waku/sdk';
 import { IMessage } from '../app/app-waku-message.model';
 import { appConfig } from '../app/app.config';
 import { PUBSUB_TOPIC } from '../app/app.const';
+import { IWakuNode, IWakuService } from './waku.model';
+import { WakuRelayNode } from './protocols/waku-relay-node';
+import { WakuLightNode } from './protocols/waku-light-node';
 
 export const MESSAGE = {
   STATE: '__state',
@@ -17,90 +19,7 @@ logLevel.set(LogLevel.None, []);
 logLevel.set(LogLevel.State, [MESSAGE.STATE]);
 logLevel.set(LogLevel.All, [MESSAGE.STATE, MESSAGE.PLAYER_ONLINE, MESSAGE.PLAYER_VOTED]);
 
-
-interface IWakuLightNode {
-  filter: Pick<IFilter, 'subscribe'>,
-  lightPush: Pick<ILightPush, 'send'>,
-  stop: () => void
-}
-
-class WakuFakeLightNode implements IWakuLightNode {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  private subscribe: <T extends IDecodedMessage>(decoders: IDecoder<T> | IDecoder<T>[], callback: Callback<T>) => Unsubscribe | Promise<Unsubscribe> = (_, __) => () => new Promise(r => r());
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  private send: (encoder: IEncoder, message: IWakuMessage) => Promise<SendResult> = (_, __) => new Promise(resolve => resolve({
-    recipients: []
-  }))
-
-  public filter = {
-    subscribe: this.subscribe
-  }
-
-  public lightPush = {
-    send: this.send
-  };
-
-  public stop() {
-
-  }
-}
-
-export async function createWakuNodeService(contentTopic: string): Promise<WakuNodeService> {
-  if (appConfig.fakeNode) {
-    return new Promise(r => r(new WakuNodeService(new WakuFakeLightNode(), contentTopic)))
-  }
-
-  let step: string = 'CREATING NODE';
-
-  const timeout = setTimeout(() => {
-    console.warn(`Too long waiting for node instance on step ${step}`)
-  }, 8000);
-
-  const node = await createLightNode({
-    libp2p: {
-      peerDiscovery: [
-        wakuDnsDiscovery(
-          ["enrtree://ANEDLO25QVUGJOUTQFRYKWX6P4Z4GKVESBMHML7DZ6YK4LGS5FC5O@prod.wakuv2.nodes.status.im"],
-          {
-            lightPush: 3,
-            filter: 3,
-          }),
-      ],
-    },
-  });
-  step = 'NODE CREATED, STARTING...'
-  await node.start();
-  step = 'NODE STARTED, WAITING FOR PEARS...';
-  await waitForRemotePeer(node, [
-    Protocols.LightPush,
-    Protocols.Filter,
-  ]);
-
-  const sidr = [
-    'connection:close',
-    'connection:open',
-    'connection:prune',
-    'peer:connect',
-    'peer:disconnect',
-    'peer:discovery',
-    'peer:identify',
-    'peer:update',
-    'self:peer:update',
-    'start',
-    'stop',
-    'transport:close',
-    'transport:listening',
-  ]
-
-  sidr.forEach(event => {
-    node.filter.addLibp2pEventListener(event, e => console.warn(event, e));
-  })
-
-  clearTimeout(timeout);
-  return new WakuNodeService(node, contentTopic);
-}
-
-export class WakuNodeService {
+export class WakuNodeService implements IWakuService {
   private readonly encoder: Encoder;
   private readonly decoder: Decoder;
   private readonly utf8Encoder = new TextEncoder();
@@ -110,17 +29,28 @@ export class WakuNodeService {
 
   constructor(
 
-    private readonly node: IWakuLightNode,
+    private readonly node: IWakuNode,
     contentTopic: string,
   ) {
     this.encoder = createEncoder({ contentTopic, pubsubTopic: PUBSUB_TOPIC, ephemeral: true });
     this.decoder = createDecoder(contentTopic, PUBSUB_TOPIC);
 
     this.initSubscription();
+    // TODO: add connection:close libp2p handler
+  }
+
+  public static async create(contentTopic: string): Promise<IWakuService> {
+    const createFn = {
+      'relay': WakuRelayNode.create,
+      'light': WakuLightNode.create,
+    }[appConfig.waku.protocol];
+
+    const node = await createFn();
+    return new WakuNodeService(node, contentTopic);
   }
 
   private async initSubscription(): Promise<void> {
-    await this.node.filter.subscribe([this.decoder], rawMessage => {
+    await this.node.subscribe([this.decoder], rawMessage => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const message = JSON.parse(this.decodeUtf8((rawMessage as any).proto.payload)) as IMessage;
       const messagesToLog = logLevel.get(appConfig.logLevel) || [];
@@ -134,7 +64,7 @@ export class WakuNodeService {
   public send(message: IMessage): void {
     console.log('SENDING', message);
 
-    this.node.lightPush.send(this.encoder, {
+    this.node.send(this.encoder, {
       payload: this.encodeUtf8(JSON.stringify(message))
     })
   }

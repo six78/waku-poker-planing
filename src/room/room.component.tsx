@@ -36,7 +36,7 @@ export function Room() {
         </div>
       </div>
 
-      {appState.revealResults && <VoteResult />}
+      {appState.votesRevealed && <VoteResult />}
     </>
   );
 }

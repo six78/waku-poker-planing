@@ -1,6 +1,9 @@
+import { appConfig } from '../app/app.config';
 import { IAppState } from '../app/app.state';
 import { IRoomState, RoomId } from '../room/room.model';
 import { getFromLocalStorage, saveToLocalStorage } from '../shared/local-storage';
+import { toArray, toDictionary } from '../shared/object';
+import { Sort, getSortFn } from '../shared/sorting';
 import { getCurrentTimestamp } from '../shared/timestamp';
 
 // TODO: bad file naming
@@ -43,4 +46,11 @@ export function saveRoomState(roomId: RoomId, state: IAppState): void {
 
 export function getDealerRooms(): IDealerRoomsList {
   return getFromLocalStorage<IDealerRoomsList>(STORAGE_KEY) || {};
+}
+
+export function cleanUpDealerRoomHistory() {
+  const rooms = toArray(getDealerRooms());
+  const sortedRooms = rooms.sort(getSortFn<IRoomState>("updatedAt", Sort.Desc))
+  const roomsToStore = sortedRooms.slice(0, appConfig.maxRoomsToStoreByDealer);
+  saveToLocalStorage(STORAGE_KEY, toDictionary(roomsToStore, '__key'));
 }
