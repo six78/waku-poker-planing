@@ -1,9 +1,9 @@
-import { IIssue, IRemoteIssue } from './issue.model';
+import { IIssue, ITaskTrackerIssue } from './issue.model';
 import { isUrl } from '../shared/url';
 import { generateHash } from '../shared/random-hash';
 import { getIssueFromGithub } from './providers/github-issue-provider';
 
-async function getRemoteIssue(issueUrl: string): Promise<IRemoteIssue | null> {
+async function getRemoteIssue(issueUrl: string): Promise<ITaskTrackerIssue | null> {
   if (!isUrl(issueUrl)) {
     return null;
   }

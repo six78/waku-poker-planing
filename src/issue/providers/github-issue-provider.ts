@@ -1,4 +1,4 @@
-import { IRemoteIssue } from '../issue.model';
+import { ITaskTrackerIssue } from '../issue.model';
 
 interface IGithubIssue {
   html_url: string;
@@ -12,7 +12,7 @@ const githubSettings = {
 }
 
 
-export async function getIssueFromGithub(issueUrl: string): Promise<IRemoteIssue | null> {
+export async function getIssueFromGithub(issueUrl: string): Promise<ITaskTrackerIssue | null> {
   const isGithub = issueUrl.indexOf(githubSettings.url) === 0;
 
   if (!isGithub) {

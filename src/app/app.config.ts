@@ -16,7 +16,7 @@ interface IAppConfig {
 }
 
 export const appConfig: IAppConfig = {
-  version: 1, // TODO: strongly typed bytes
+  version: 1,
   logLevel: LogLevel.None,
   maxRoomsToStoreByDealer: 5,
   waku: {
