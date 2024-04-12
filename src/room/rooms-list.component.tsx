@@ -1,9 +1,8 @@
 import { Table, TableProps } from "antd";
 import { getDealerRooms } from "../dealer/dealer-resolver";
-import { IRoomState, RoomId } from "./room.model";
+import { RoomId } from "./room.model";
 import { Button } from "antd";
 import { useNavigateToRoom } from "../app/app.router";
-import { appConfig } from "../app/app.config";
 import { Sort, getSortFn } from "../shared/sorting";
 
 interface IData {

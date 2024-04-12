@@ -25,23 +25,31 @@ export class WakuLightNode implements IWakuNode {
 
   public static async create(): Promise<IWakuNode> {
     const node = await createLightNode({
-      libp2p: {
-        peerDiscovery: [
-          wakuDnsDiscovery(
-            appConfig.waku.enrtree,
-            {
-              lightPush: 3,
-              filter: 3,
-            }),
-        ],
-      },
+      bootstrapPeers: appConfig.waku.peers,
+      // libp2p: {
+
+      //   peerDiscovery: [
+      //     wakuDnsDiscovery(
+      //       appConfig.waku.enrtree,
+      //       {
+      //         lightPush: 3,
+      //         filter: 3,
+      //       }),
+      //   ],
+      // },
     });
 
+    console.log('CREATED');
+
     await node.start();
+    console.log('STARTED');
     await waitForRemotePeer(node, [
       Protocols.LightPush,
       Protocols.Filter,
     ]);
+
+    console.log('WAITING');
+
 
     return new WakuLightNode(node);
   }

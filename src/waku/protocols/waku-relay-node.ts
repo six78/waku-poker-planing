@@ -1,7 +1,6 @@
 import {
-  Callback, IDecodedMessage, IDecoder, IEncoder, IMessage, Libp2p, Protocols, RelayNode, SendResult, Unsubscribe, createRelayNode, waitForRemotePeer
+  Callback, IDecodedMessage, IDecoder, IEncoder, IMessage, Libp2p, Protocols, RelayNode, SendResult, Unsubscribe, createNode, waitForRemotePeer
 } from '@waku/sdk';
-import { wakuDnsDiscovery } from "@waku/dns-discovery";
 import { appConfig } from '../../app/app.config';
 import { IWakuNode } from '../waku.model';
 
@@ -25,15 +24,17 @@ export class WakuRelayNode implements IWakuNode {
   }
 
   public static async create(): Promise<IWakuNode> {
-    const node = await createRelayNode({
+    const node = await createNode({
+
       emitSelf: true,
-      libp2p: {
-        peerDiscovery: [
-          wakuDnsDiscovery(
-            appConfig.waku.enrtree,
-          ),
-        ],
-      },
+      bootstrapPeers: appConfig.waku.peers,
+      // libp2p: {
+      //   peerDiscovery: [
+      //     wakuDnsDiscovery(
+      //       appConfig.waku.enrtree,
+      //     ),
+      //   ],
+      // },
     });
 
     await node.start();
