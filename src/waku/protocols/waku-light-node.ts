@@ -2,6 +2,7 @@ import { Callback, IDecodedMessage, IDecoder, IEncoder, IMessage, Libp2p, LightN
 import { wakuDnsDiscovery } from "@waku/dns-discovery";
 import { appConfig } from '../../app/app.config';
 import { IWakuNode } from '../waku.model';
+import { getAppSettings } from '../../settings/settings.storage';
 
 export class WakuLightNode implements IWakuNode {
   public readonly libp2p: Libp2p;
@@ -24,8 +25,12 @@ export class WakuLightNode implements IWakuNode {
   }
 
   public static async create(): Promise<IWakuNode> {
+    const settings = getAppSettings();
+    const peers = settings.node ? [settings.node] : appConfig.waku.peers
+
     const node = await createLightNode({
-      bootstrapPeers: appConfig.waku.peers,
+      bootstrapPeers: peers,
+
       // libp2p: {
 
       //   peerDiscovery: [
@@ -39,7 +44,7 @@ export class WakuLightNode implements IWakuNode {
       // },
     });
 
-    console.log('CREATED');
+    console.log('CONNECTING TO NODE', peers);
 
     await node.start();
     console.log('STARTED');

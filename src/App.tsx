@@ -12,6 +12,7 @@ import { Room } from "./room/room.component";
 import { isCurrentUserDealerForRoom } from "./dealer/dealer-resolver";
 import { useUpdateAppState } from "./app/app.state";
 import { RoomConfig } from "./room/room";
+import { Header } from "./page-layout/header.component";
 
 export function App() {
   const { id: roomId } = useParams();
@@ -71,8 +72,11 @@ export function App() {
       </DealerServiceContext.Provider>
     </PlayerContext.Provider>
   ) : (
-    <div className="h-screen w-screen flex justify-center items-center">
-      <Spin size="large" />
+    <div className="flex flex-col w-screen h-screen">
+      <Header></Header>
+      <div className="flex-grow flex justify-center items-center">
+        <Spin size="large" />
+      </div>
     </div>
   );
 }

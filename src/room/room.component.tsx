@@ -15,9 +15,7 @@ export function Room() {
     <>
       <div className="w-screen h-screen flex">
         <div className="flex flex-col overflow-hidden flex-grow">
-          <div className="h-14 drop-shadow-md flex-shrink-0">
-            <Header></Header>
-          </div>
+          <Header></Header>
           <div className="flex-grow overflow-auto">
             <Deck></Deck>
           </div>

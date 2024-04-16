@@ -38,7 +38,12 @@ export function UserAuth() {
     <div className="w-scren h-screen flex justify-center items-center">
       <Card title="Enter your name to continue" className="w-1/3">
         <div className="flex flex-col items-end">
-          <Input ref={input} placeholder="name"></Input>
+          <Input
+            autoFocus
+            onPressEnter={submit}
+            ref={input}
+            placeholder="name"
+          ></Input>
           <Button onClick={submit} type="primary" className="mt-4">
             Continue
           </Button>
