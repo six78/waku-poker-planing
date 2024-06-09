@@ -1,8 +1,9 @@
 import {
-  Callback, IDecodedMessage, IDecoder, IEncoder, IMessage, Libp2p, Protocols, RelayNode, SendResult, Unsubscribe, createNode, waitForRemotePeer
+  Callback, IDecodedMessage, IDecoder, IEncoder, IMessage, Libp2p, Protocols, RelayNode, SDKProtocolResult, Unsubscribe, waitForRemotePeer
 } from '@waku/sdk';
 import { appConfig } from '../../app/app.config';
 import { IWakuNode } from '../waku.model';
+import { createRelayNode } from '@waku/sdk/relay';
 
 export class WakuRelayNode implements IWakuNode {
   public readonly libp2p: Libp2p;
@@ -10,7 +11,7 @@ export class WakuRelayNode implements IWakuNode {
     this.libp2p = node.libp2p;
   }
 
-  public send(encoder: IEncoder, message: IMessage): Promise<SendResult> {
+  public send(encoder: IEncoder, message: IMessage): Promise<SDKProtocolResult> {
     return this.node.relay.send(encoder, message);
   }
 
@@ -24,7 +25,7 @@ export class WakuRelayNode implements IWakuNode {
   }
 
   public static async create(): Promise<IWakuNode> {
-    const node = await createNode({
+    const node = await createRelayNode({
 
       emitSelf: true,
       bootstrapPeers: appConfig.waku.peers,

@@ -1,4 +1,4 @@
-import { Callback, IDecodedMessage, IDecoder, IEncoder, IMessage, Libp2p, LightNode, Protocols, SendResult, Unsubscribe, createLightNode, waitForRemotePeer } from '@waku/sdk';
+import { Callback, IDecodedMessage, IDecoder, IEncoder, IMessage, Libp2p, LightNode, Protocols, SDKProtocolResult, Unsubscribe, createLightNode, waitForRemotePeer } from '@waku/sdk';
 import { wakuDnsDiscovery } from "@waku/dns-discovery";
 import { appConfig } from '../../app/app.config';
 import { IWakuNode } from '../waku.model';
@@ -11,7 +11,7 @@ export class WakuLightNode implements IWakuNode {
     this.libp2p = node.libp2p;
   }
 
-  public send(encoder: IEncoder, message: IMessage): Promise<SendResult> {
+  public send(encoder: IEncoder, message: IMessage): Promise<SDKProtocolResult> {
     return this.node.lightPush.send(encoder, message);
   }
 
@@ -29,7 +29,8 @@ export class WakuLightNode implements IWakuNode {
     const peers = settings.node ? [settings.node] : appConfig.waku.peers
 
     const node = await createLightNode({
-      bootstrapPeers: peers,
+      defaultBootstrap: true
+     // bootstrapPeers: peers,
 
       // libp2p: {
 
