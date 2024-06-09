@@ -16,6 +16,7 @@ export class WakuLightNode implements IWakuNode {
 
   public subscribe<T extends IDecodedMessage>(decoders: IDecoder<T> | IDecoder<T>[], callback: Callback<T>)
     : Unsubscribe | Promise<Unsubscribe> {
+    console.log("<<< lightnode.subscribe")
     return this.node.filter.subscribe(decoders, callback);
   }
 

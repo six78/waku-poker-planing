@@ -5,7 +5,7 @@ import mkcert from 'vite-plugin-mkcert'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [mkcert(), react()],
+  plugins: [react()],
   base: "/waku-poker-planing"
 })
 

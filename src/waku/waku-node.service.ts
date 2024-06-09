@@ -66,6 +66,7 @@ export class WakuNodeService implements IWakuService {
   }
 
   private async initSubscription(): Promise<void> {
+    console.log("<<< initSubscription")
     await this.node.subscribe([this.decoder], rawMessage => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const message = JSON.parse(this.decodeUtf8((rawMessage as any).proto.payload)) as IMessage;
